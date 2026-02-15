@@ -1,0 +1,9 @@
+from sklearn.mixture import GaussianMixture
+from sklearn.metrics import silhouette_score
+
+def Gauss(n_comp,data_embed):
+    gmm = GaussianMixture(n_components = n_comp, random_state=42)
+    gmm.fit(data_embed)
+    clusters = gmm.predict(data_embed)
+    cluster_centers = gmm.means_
+    return clusters, cluster_centers
