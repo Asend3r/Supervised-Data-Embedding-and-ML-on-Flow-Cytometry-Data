@@ -1,0 +1,38 @@
+x = C10file['FSC-A']
+y = C10file['SSC-A']
+
+plt.figure()
+plt.scatter(x,y, s = 1)
+plt.grid(True)
+plt.xlabel('FSC-A')
+plt.ylabel('SSC-A')
+plt.yscale('log')
+plt.show()
+
+gated_cells = C10file[(C10file['FSC-A']<=0.4e6) & (C10file['SSC-A']<=2e5)]
+
+import numpy as np
+
+x2 = gated_cells['FSC-H']
+y2 = gated_cells['FSC-A']
+
+plt.figure()
+plt.scatter(x2,y2,s = 1)
+plt.xlabel('FSC-H')
+plt.ylabel('FSC-A')
+plt.grid(True)
+
+x3 = np.linspace(0,3e5,100)
+m = 1.1
+b = 100000
+y3 = x3*m + b
+
+plt.figure()
+plt.scatter(x2,y2,s = 1)
+plt.plot(x3,y3)
+plt.xlabel('FSC-H')
+plt.ylabel('FSC-A')
+plt.grid(True)
+plt.show()
+
+gated_cells3 = gated_cells[(gated_cells['FSC-A']<m*gated_cells['FSC-H']+b)]
