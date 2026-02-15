@@ -1,0 +1,6 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+C10file = pd.read_csv("C:/Users/Sean/School/FURI_Project/C10file.csv")
+C10file = C10file.iloc[:, :28]
+C10file = C10file.drop(['Time'],axis = 1)
+C10file = C10file.drop(C10file.columns[0],axis = 1)
