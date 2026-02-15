@@ -1,0 +1,58 @@
+#check variability based on clusters
+sfs_results = {}
+
+for i in range(5):
+    start = i * 2000
+    end = (i + 1) * 2000
+
+    gated_chunk = gated_cells_np[start:end, :]
+    
+    tsne = TSNE(n_components=2, random_state=0)
+    fit_model = tsne.fit_transform(gated_chunk)
+
+    clusters, cluster_centers = Gauss(7, fit_model)
+    score = silhouette_score(fit_model, clusters)
+
+    #plot cells in embedded space with clusters
+    plt.figure()
+    plt.scatter(fit_model[:, 0], fit_model[:, 1],
+                c=clusters, cmap='viridis', s=5)
+    plt.title(f"t-SNE + GMM (events {start}:{end})\nSilhouette = {score:.3f}")
+    
+    for j, (x, y) in enumerate(cluster_centers):
+        plt.text(x, y, str(j),
+                 color='black', fontsize=12,
+                 ha='center', va='center',
+                 bbox=dict(facecolor='white',
+                           edgecolor='black',
+                           boxstyle='round'))
+    plt.show()
+    
+    gated_df = pd.DataFrame(gated_chunk, columns=gated_cells3.columns)
+    gated_df['Label'] = clusters
+    
+    X = gated_df.drop(columns='Label')
+    y = gated_df['Label']
+    
+    #split into testing and training data for random forest
+    xtr, xt, ytr, yt = train_test_split(X, y, test_size=0.3, random_state=42)
+    model = RandomForestClassifier(random_state=42)
+    model.fit(xtr, ytr)
+    
+    #determine most predictive features
+    sfs = SFS(model,
+              k_features=5,
+              forward=True,
+              floating=False,
+              scoring='accuracy',
+              cv=5)
+    
+    sfs.fit(xtr, ytr)
+
+    sfs_results[f"{start}:{end}"] = {
+        "features": sfs.k_feature_names_,
+        "cv_score": sfs.k_score_
+    }
+    
+    print("Selected features:", sfs.k_feature_names_)
+    print("CV accuracy:", sfs.k_score_)
