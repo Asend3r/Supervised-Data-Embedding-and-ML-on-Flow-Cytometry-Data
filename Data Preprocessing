@@ -3,7 +3,7 @@ import pandas as pd
 
 import fcsparser
 #Replace this with your file path
-fcs_file = "20240820-P1-Spleen_Experiment_Group_A1.fcs"
+fcs_file = "20240820-P1-Spleen_Experiment_Group_A5.fcs"
 
 meta, C10file = fcsparser.parse(fcs_file,reformat_meta = True)
 C10file = C10file.iloc[:, :28]
