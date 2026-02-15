@@ -1,0 +1,34 @@
+#determine cluster size with optimized silhouette score
+cluster_n = np.array([3,5,7,9])
+for idx, number in enumerate(cluster_n):
+    clusters, cluster_centers = Gauss(number,fit_model)
+    plt.figure()
+    plt.scatter(fit_model[:,0],fit_model[:,1],c = clusters,cmap='viridis',s=5)
+    score = silhouette_score(fit_model,clusters)
+    plt.title(f"GMM Clustering on tSNE (n_clusters={number})\nSilhouette Score: {score}")
+    for i, (x,y) in enumerate(cluster_centers):
+         plt.text(x,y,str(i),color='black',fontsize =12,ha='center',va = 'center',
+             bbox=dict(facecolor='white',edgecolor='black',boxstyle = 'round'))
+    plt.show()
+
+# 7 clusters has the highest score (0.44)
+clusters, cluster_centers = Gauss(7,fit_model)
+gated_cells_model = pd.DataFrame(gated_cells_small)
+gated_cells_model['Label'] = clusters
+
+X = gated_cells_model.drop(['Label'],axis = 1)
+X.columns = gated_cells3.columns
+y = gated_cells_model.iloc[:,26]
+
+# import libraries
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from mlxtend.feature_selection import SequentialFeatureSelector as SFS
+from sklearn.metrics import mean_absolute_error
+
+#Use Radom Forest Classifier
+xtr, xt, ytr, yt = train_test_split(X,y, test_size = 0.3)
+model = RandomForestClassifier()
+model.fit(xtr,ytr)
+y_pred_RF = model.predict(xt)
+print(f'The score for random forest is {mean_absolute_error(yt,y_pred_RF)}')
